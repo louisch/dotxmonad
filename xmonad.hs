@@ -18,11 +18,17 @@
 import XMonad
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.SetWMName
+import qualified XMonad.StackSet as W
+import XMonad.Hooks.ManageHelpers
+import XMonad.Layout.NoBorders
 import Data.Monoid
 import System.Exit
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
+
+import OpenApp
 
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
@@ -120,9 +126,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Move focus to the master window
     , ((modm,               xK_m     ), windows W.focusMaster  )
 
-    -- Swap the focused window and the master window
-    , ((modm,               xK_Return), windows W.swapMaster)
-
     -- Swap the focused window with the next window
     , ((modm .|. shiftMask, xK_j     ), windows W.swapDown  )
 
@@ -139,23 +142,23 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_t     ), withFocused $ windows . W.sink)
 
     -- Increment the number of windows in the master area
-    , ((modm              , xK_comma ), sendMessage (IncMasterN 1))
+    , ((modm,               xK_comma ), sendMessage (IncMasterN 1))
 
     -- Deincrement the number of windows in the master area
-    , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
+    , ((modm,               xK_period), sendMessage (IncMasterN (-1)))
 
     -- Toggle the status bar gap
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
     --
-    -- , ((modm              , xK_b     ), sendMessage ToggleStruts)
+    , ((modm,               xK_b     ), sendMessage ToggleStruts)
 
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
 
     -- Restart xmonad
-    , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
-    , ((modm, xK_a), spawn "/usr/bin/keepass2 --auto-type")
+    , ((modm,               xK_q     ), spawn "xmonad --recompile; xmonad --restart")
+    , ((modm,               xK_a     ), spawn "/usr/bin/keepass2 --auto-type")
     ]
     ++
 
@@ -245,7 +248,8 @@ myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
 -- 'className' and 'resource' are used below.
 --
 myManageHook = composeAll
-    [ className =? "MPlayer"        --> doFloat
+    [ isFullscreen                  --> doFullFloat
+    , className =? "MPlayer"        --> doFloat
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore
@@ -296,17 +300,9 @@ myLogHook = return ()
 myStartupHook = return ()
 
 ------------------------------------------------------------------------
--- Now run xmonad with all the defaults we set up.
-
--- Run xmonad with the settings you specify. No need to modify this.
---
-main = xmonad $ ewmh defaults
-
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will
 -- use the defaults defined in xmonad/XMonad/Config.hs
---
--- No need to modify this.
 --
 defaults = defaultConfig {
         -- simple stuff
@@ -323,9 +319,13 @@ defaults = defaultConfig {
         mouseBindings = myMouseBindings,
 
         -- hooks, layouts
-        layoutHook = myLayout,
+        layoutHook = smartBorders (myLayout),
         manageHook = myManageHook,
         handleEventHook = myEventHook,
-        logHook = myLogHook,
+        logHook = myLogHook >> setWMName "LG3D",
         startupHook = myStartupHook
 }
+
+main = do
+  xmonad $ ewmh defaults
+  startAll
