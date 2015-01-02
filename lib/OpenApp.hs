@@ -21,10 +21,14 @@ data Program = Persistent Command | Terminates Command
 toStart :: [Program]
 toStart = [Terminates (WithArgs "setxkbmap" ["-option",
                                              "ctrl:swap_lwin_lctl",
+                                             "-option",
                                              "terminate:ctrl_alt_bksp"]),
            Persistent (Command "xmobar"),
            Persistent (Command "stalonetray"),
-           Persistent (Command "dropboxd")]
+           Persistent (Command "dropboxd"),
+           Persistent (WithArgs "emacs" ["--daemon"]),
+           Persistent (Command "workrave")
+           Persistent (Command "devmon")]
 
 isNotStarted :: Program -> IO Bool
 isNotStarted program =

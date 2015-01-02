@@ -297,7 +297,7 @@ myLogHook = return ()
 -- It will add initialization of EWMH support to your custom startup
 -- hook by combining it with ewmhDesktopsStartup.
 --
-myStartupHook = return ()
+myStartupHook = catchIO startAll
 
 ------------------------------------------------------------------------
 -- A structure containing your configuration settings, overriding
@@ -326,6 +326,4 @@ defaults = defaultConfig {
         startupHook = myStartupHook
 }
 
-main = do
-  xmonad $ ewmh defaults
-  startAll
+main = xmonad $ ewmh defaults
