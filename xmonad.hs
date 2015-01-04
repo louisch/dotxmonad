@@ -28,8 +28,6 @@ import System.Exit
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
-import OpenApp
-
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
@@ -297,7 +295,7 @@ myLogHook = return ()
 -- It will add initialization of EWMH support to your custom startup
 -- hook by combining it with ewmhDesktopsStartup.
 --
-myStartupHook = catchIO startAll
+myStartupHook = return ()
 
 ------------------------------------------------------------------------
 -- A structure containing your configuration settings, overriding
